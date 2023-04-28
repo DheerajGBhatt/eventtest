@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: SAM Template
+Globals:
+  Function:
+    Timeout: 30
+Resources:
+  Source:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: lamthree
+      CodeUri: lamthree/
+      Runtime: nodejs14.x
+      Tags:
+        createdBy: rover
+        applicationName: eventtest
+      Description: Rover-tools created lamthree  named lambda resource
+      Handler: app.lambdaHandler
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref SampleCustomEventBus
+      
+  Target:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: lamfour
+      CodeUri: lamfour/
+      Runtime: nodejs14.x
+      Tags:
+        createdBy: rover
+        applicationName: eventtest
+      Description: Rover-tools created lamfour  named lambda resource
+      Handler: app.lambdaHandler
+      Events:
+        Trigger:
+          Type: EventBridgeRule 
+          Properties:
+            EventBusName: !Ref SampleCustomEventBus
+            Pattern:
+              source: 
+                - "custom.MYapp"
+              detail-type:
+                - transaction   
+              detail: 
+                result: 
+                  - "approved"
+  Targettwo:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: lamfive
+      CodeUri: lamfour/
+      Runtime: nodejs14.x
+      Tags:
+        createdBy: rover
+        applicationName: eventtest
+      Description: Rover-tools created lamfour  named lambda resource
+      Handler: app.lambdaHandler
+      Events:
+        Trigger:
+          Type: EventBridgeRule 
+          Properties:
+            EventBusName: !Ref SampleCustomEventBus
+            Pattern:
+              source: 
+                - "custom.MYapp"
+              detail-type:
+                - transaction   
+              detail: 
+                result: 
+                  - "disapproved"
+
+
+  SampleCustomEventBus: 
+    Type: AWS::Events::EventBus
+    Properties: 
+        Name: "MyCustomEventBus"
+
+
+
+
+    
